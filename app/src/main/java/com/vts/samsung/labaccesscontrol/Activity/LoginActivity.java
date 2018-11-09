@@ -30,7 +30,7 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class Login extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     private ImageButton btnSign;
     private EditText txtUser, txtPass;
@@ -103,7 +103,7 @@ public class Login extends AppCompatActivity {
                     new LoginAsyncTask().execute();
                 } else {
                     btnSign.setImageResource(R.drawable.button);
-                    Toast.makeText(Login.this, (R.string.obavezna_polja), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, (R.string.obavezna_polja), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -114,14 +114,14 @@ public class Login extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progressDialog = new ProgressDialog(Login.this);
+            progressDialog = new ProgressDialog(LoginActivity.this);
             progressDialog.setProgressStyle(R.style.ProgressBar);
             progressDialog.setMessage("Autorizacija korisnika, Molimo sačekajte . . . ");
             progressDialog.show();
 
             json = new JSONObject();
             try {
-                json.put("macAddressDevice", "11:11:22:33:44:AC");
+                json.put("macAddressDevice", application.getDeviceMac());
                 json.put("username", txtUser.getText().toString());
                 json.put("password", txtPass.getText().toString());
                 Log.d("JSON", json.toString());
@@ -185,10 +185,12 @@ public class Login extends AppCompatActivity {
 
                         if (doorPermission) {
                             usereditor.putString("AccessLab", "true").apply();
-                            intent = new Intent(Login.this, NavActivity.class);
+                            //intent = new Intent(Login.this, NavActivity.class);
+                            intent = new Intent(LoginActivity.this, MainActivity.class);
                         } else {
                             usereditor.putString("AccessLab", "false").apply();
-                            intent = new Intent(Login.this, WaitActiveActivity.class);
+                            //intent = new Intent(Login.this, WaitActiveActivity.class);
+                            intent = new Intent(LoginActivity.this, MainActivity.class);
                         }
                         usereditor.apply();
                         progressDialog.dismiss();
@@ -197,21 +199,21 @@ public class Login extends AppCompatActivity {
                         finish();
                         break;
                     case "notValidMacAddress":
-                        Toast.makeText(Login.this, R.string.neovlascen_uredjaj, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, R.string.neovlascen_uredjaj, Toast.LENGTH_SHORT).show();
                         break;
                     case "notValidPassword":
-                        Toast.makeText(Login.this, R.string.neispravno_lozinka, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, R.string.neispravno_lozinka, Toast.LENGTH_SHORT).show();
                         break;
                     case "notValidUsername":
-                        Toast.makeText(Login.this, R.string.neispravno_korisnicko_ime, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, R.string.neispravno_korisnicko_ime, Toast.LENGTH_SHORT).show();
                         break;
                     case "notValidError":
-                        Toast.makeText(Login.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
                         break;
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Toast.makeText(Login.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
             }
             progressDialog.dismiss();
         }
