@@ -16,6 +16,15 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.vts.samsung.labaccesscontrol.R;
 import com.vts.samsung.labaccesscontrol.Utils.Application;
 import com.vts.samsung.labaccesscontrol.Utils.CheckNetwork;
@@ -34,8 +43,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private ImageButton btnSign;
     private EditText txtUser, txtPass;
-    private JSONObject json;
-    private ProgressDialog progressDialog;
     private Application application;
     private SharedPreferences sharedPreferences;
 
@@ -74,33 +81,14 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-//    private String md5(String in) {
-//        MessageDigest digest;
-//        try {
-//            digest = MessageDigest.getInstance("MD5");
-//            digest.reset();
-//            digest.update(in.getBytes());
-//            byte[] a = digest.digest();
-//            int len = a.length;
-//            StringBuilder sb = new StringBuilder(len << 1);
-//            for (byte anA : a) {
-//                sb.append(Character.forDigit((anA & 0xf0) >> 4, 16));
-//                sb.append(Character.forDigit(anA & 0x0f, 16));
-//            }
-//            return sb.toString();
-//        } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-
     private void btnSend() {
         btnSign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 btnSign.setImageResource(R.drawable.button_press);
                 if (txtUser.getText().toString().length() > 0 && txtPass.getText().toString().length() > 0) {
-                    new LoginAsyncTask().execute();
+                    sendLoginRequest();
+
                 } else {
                     btnSign.setImageResource(R.drawable.button);
                     Toast.makeText(LoginActivity.this, (R.string.obavezna_polja), Toast.LENGTH_SHORT).show();
@@ -109,113 +97,96 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("StaticFieldLeak")
-    class LoginAsyncTask extends AsyncTask<String, String, String> {
+    private void sendLoginRequest() {
+        final ProgressDialog progressDialog;
+        progressDialog = new ProgressDialog(LoginActivity.this);
+        progressDialog.setProgressStyle(R.style.ProgressBar);
+        progressDialog.setMessage(getResources().getString(R.string.dialogAuthorizing));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
-        @Override
-        protected void onPreExecute() {
-            progressDialog = new ProgressDialog(LoginActivity.this);
-            progressDialog.setProgressStyle(R.style.ProgressBar);
-            progressDialog.setMessage("Autorizacija korisnika, Molimo sačekajte . . . ");
-            progressDialog.show();
-
-            json = new JSONObject();
-            try {
-                json.put("macAddressDevice", application.getDeviceMac());
-                json.put("username", txtUser.getText().toString());
-                json.put("password", txtPass.getText().toString());
-                Log.d("JSON", json.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        JSONObject loginInfo = new JSONObject();
+        try {
+            loginInfo.put("macAddressDevice", application.getDeviceMac());
+            loginInfo.put("username", txtUser.getText().toString());
+            loginInfo.put("password", txtPass.getText().toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
-        @Override
-        protected String doInBackground(String... strings) {
-            String data = json.toString();
-            BufferedReader reader;
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
-            try {
-                URL url = new URL(application.getRPi() + application.getRpiRouteLogin());
-                URLConnection conn = url.openConnection();
-                conn.setConnectTimeout(2000);
-                conn.setReadTimeout(2000);
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setDoOutput(true);
-                OutputStreamWriter wr;
-                wr = new OutputStreamWriter(conn.getOutputStream());
-                wr.write(data);
-                wr.flush();
+        final JsonObjectRequest customRequest = new JsonObjectRequest(Request.Method.POST, application.getRPi() + application.getRpiRouteLogin(),loginInfo, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    String message = response.getString("message");
+                    switch (message) {
+                        case "success":
+                            Intent intent;
+                            boolean doorPermission = response.getBoolean("doorPermission");
+                            SharedPreferences.Editor usereditor = sharedPreferences.edit();
+                            usereditor.putString("username", response.getString("username"));
+                            usereditor.putString("ime", response.getString("name"));
+                            usereditor.putString("prezime", response.getString("lastName"));
+                            usereditor.putString("zvanje", response.getString("rank"));
+                            usereditor.putString("macAdressaRuterInLab", response.getString("samsungAppsLabRouterMacAddress"));
+                            usereditor.putString("JedinstveniToken", response.getString("uniqueToken"));
 
-                reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder sb = new StringBuilder();
-                String line;
-
-                // Read Server Response
-                while ((line = reader.readLine()) != null) {
-                    // Append server response in string
-                    sb.append(line).append("\n");
+                            if (doorPermission) {
+                                usereditor.putString("AccessLab", "true").apply();
+                                //intent = new Intent(Login.this, NavActivity.class);
+                                intent = new Intent(LoginActivity.this, MainActivity.class);
+                            } else {
+                                usereditor.putString("AccessLab", "false").apply();
+                                //intent = new Intent(Login.this, WaitActiveActivity.class);
+                                intent = new Intent(LoginActivity.this, MainActivity.class);
+                            }
+                            usereditor.apply();
+                            progressDialog.dismiss();
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent);
+                            finish();
+                            break;
+                        case "notValidMacAddress":
+                            Toast.makeText(LoginActivity.this, R.string.neovlascen_uredjaj, Toast.LENGTH_SHORT).show();
+                            break;
+                        case "notValidPassword":
+                            Toast.makeText(LoginActivity.this, R.string.neispravno_lozinka, Toast.LENGTH_SHORT).show();
+                            break;
+                        case "notValidUsername":
+                            Toast.makeText(LoginActivity.this, R.string.neispravno_korisnicko_ime, Toast.LENGTH_SHORT).show();
+                            break;
+                        case "notValidError":
+                            Toast.makeText(LoginActivity.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(LoginActivity.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
                 }
-
-                return sb.toString();
-
-            } catch (IOException e) {
-                e.printStackTrace();
+                progressDialog.dismiss();
             }
-            return "Exception";
-        }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
+                NetworkResponse response = error.networkResponse;
 
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            String message;
-            try {
-                JSONObject jObject = new JSONObject(s);
-                message = jObject.getString("message");
-                switch (message) {
-                    case "success":
-                        Intent intent;
-                        boolean doorPermission = jObject.getBoolean("doorPermission");
-                        SharedPreferences.Editor usereditor = sharedPreferences.edit();
-                        usereditor.putString("username", jObject.getString("username"));
-                        usereditor.putString("ime", jObject.getString("name"));
-                        usereditor.putString("prezime", jObject.getString("lastName"));
-                        usereditor.putString("zvanje", jObject.getString("rank"));
-                        usereditor.putString("macAdressaRuterInLab", jObject.getString("samsungAppsLabRouterMacAddress"));
-                        usereditor.putString("JedinstveniToken", jObject.getString("uniqueToken"));
-
-                        if (doorPermission) {
-                            usereditor.putString("AccessLab", "true").apply();
-                            //intent = new Intent(Login.this, NavActivity.class);
-                            intent = new Intent(LoginActivity.this, MainActivity.class);
-                        } else {
-                            usereditor.putString("AccessLab", "false").apply();
-                            //intent = new Intent(Login.this, WaitActiveActivity.class);
-                            intent = new Intent(LoginActivity.this, MainActivity.class);
-                        }
-                        usereditor.apply();
-                        progressDialog.dismiss();
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                        finish();
-                        break;
-                    case "notValidMacAddress":
-                        Toast.makeText(LoginActivity.this, R.string.neovlascen_uredjaj, Toast.LENGTH_SHORT).show();
-                        break;
-                    case "notValidPassword":
-                        Toast.makeText(LoginActivity.this, R.string.neispravno_lozinka, Toast.LENGTH_SHORT).show();
-                        break;
-                    case "notValidUsername":
-                        Toast.makeText(LoginActivity.this, R.string.neispravno_korisnicko_ime, Toast.LENGTH_SHORT).show();
-                        break;
-                    case "notValidError":
-                        Toast.makeText(LoginActivity.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
-                        break;
+                if (error instanceof TimeoutError || error instanceof NoConnectionError)
+                    Toast.makeText(LoginActivity.this, "Nemate internet konekciju!", Toast.LENGTH_SHORT).show();
+                else if (response != null && response.data != null) {
+                    switch (response.statusCode) {
+                        /*case 400:
+                            break;
+                        case 500:
+                            break;*/
+                        default:
+                            Toast.makeText(LoginActivity.this,"Greska na serveru", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Toast.makeText(LoginActivity.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
             }
-            progressDialog.dismiss();
-        }
+        });
+        queue.add(customRequest);
     }
 }
