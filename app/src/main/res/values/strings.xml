@@ -2,6 +2,22 @@
     <string name="app_name">Lab Access Control</string>
     <string name="title_activity_login">Sign in</string>
 
+    <!--Dialogs -->
+    <string name="dialogTitleConnection">Internet konekcija</string>
+    <string name="dialogMessageNoConnection">Ova aplikacija zahteva internet konekciju. Povežite se na \"SamsungAppsLab\".</string>
+    <string name="dialogButtonConnect">Konektuj se</string>
+    <string name="dialogButtonExit">Izlaz</string>
+    <string name="dialogAuthorizing">Autorizacija korisnika, Molimo sačekajte . . .</string>
+
+    <!-- Toast Messages -->
+    <string name="errNotValidMac">Koristite neovlašćeni uredjaj, ovaj uređaj nije odobren.</string>
+    <string name="errUserName">Korisnik sa navedenim korisničkim imenom ne postoji.</string>
+    <string name="errPassword">Neispravna lozinka.</string>
+    <string name="errConnectionFailure">Nije uspostavljena komunikacija sa serverom</string>
+    <string name="errOnSrv">Došlo je do greške, molimo Vas pokušajte kasnije.</string>
+    <string name="errUnhandled">Nepoznata greska</string>
+
+    <!-- Other -->
     <string name="prijava" translatable="false">Prijava:</string>
     <string name="action_settings">Settings</string>
     <string name="otkljucaj">otkljucaj</string>
@@ -12,30 +28,22 @@
     <string name="btnprijavi_se">btnPrijavi_se</string>
     <string name="prijava_na_serveru">Autorizacija korisnika, molimo sačekajte…</string>
     <string name="molimo_sacekajte">Molimo Vas Sačekajte…</string>
-    <string name="neispravno_korisnicko_ime">Korisnik sa navedenim korisničkim imenom ne postoji.</string>
-    <string name="neispravno_lozinka">Neispravna lozinka.</string>
+
     <string name="tvWait_text">Da biste mogli da koristite aplikaciju, neophodno je da administrator odobri Vaš zahtev. Nakon odobrenja dobićete obaveštenje.</string>
-    <string name="nedostupanServer">Došlo je do greške, molimo Vas pokušajte kasnije.</string>
+
     <string name="actived_text">Vaš nalog je uspešno aktiviran. Dobro došli.</string>
     <string name="dalje">Dalje</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="configure">Configure</string>
     <string name="splash">splash</string>
-    <string name="neovlascen_uredjaj">Koristite neovlašćeni uredjaj, ovaj uređaj nije odobren.</string>
+
     <string name="ogranicenirezim">Aplikacija trenutno radi u ograničenom režimu jer niste u blizini labratorije.</string>
 
 
     <string name="login">Prijava</string>
     <string name="btnLogIn">Prijavi se</string>
-
-    <!-- Dialogs -->
-    <string name="dialogTitleConnection">Internet konekcija</string>
-    <string name="dialogMessageNoConnection">Ova aplikacija zahteva internet konekciju.
-                                            Povežite se na \"SamsungAppsLab\".</string>
-    <string name="dialogButtonConnect">Konektuj se</string>
-    <string name="dialogButtonExit">Izlaz</string>
-    <string name="dialogAuthorizing">Autorizacija korisnika, Molimo sačekajte . . .</string>
-
-
+    <string name="dialogTitleMacAdress">MAC adresa</string>
+    <string name="dialogMessageNotAssigned">Vaš uređaj trenutno nema dodeljenu MAC adresu. Morate da upalite WIFI da bi ste nastavili.</string>
+    <string name="dialogButtonTurnON">Uključi</string>
 </resources>

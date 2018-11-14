@@ -96,4 +96,29 @@ public class CheckNetwork {
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
+
+    public static void alertDialogWifi(final Context c) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(c);
+        alertDialogBuilder.setTitle(c.getResources().getString(R.string.dialogTitleMacAdress));
+        alertDialogBuilder.setMessage(c.getResources().getString(R.string.dialogMessageNotAssigned));
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setPositiveButton(c.getResources().getString(R.string.dialogButtonTurnON),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+                        ((Activity) c).startActivity(intent);
+                    }
+                });
+        alertDialogBuilder.setNegativeButton(c.getResources().getString(R.string.dialogButtonExit),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        ((Activity) c).finish();
+                    }
+                });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
 }

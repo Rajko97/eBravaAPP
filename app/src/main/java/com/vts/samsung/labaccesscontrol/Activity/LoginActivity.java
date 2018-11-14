@@ -1,15 +1,12 @@
 package com.vts.samsung.labaccesscontrol.Activity;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -32,19 +29,13 @@ import com.vts.samsung.labaccesscontrol.Utils.CheckNetwork;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URL;
-import java.net.URLConnection;
-
 public class LoginActivity extends AppCompatActivity {
 
     private ImageButton btnSign;
     private EditText txtUser, txtPass;
     private Application application;
     private SharedPreferences sharedPreferences;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +66,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private void CheckNet() {
         if (CheckNetwork.checkNet(this.getApplicationContext(), application)) {
-            btnSend();
+            if (application.getDeviceMac() != null && !application.getDeviceMac().equals("02:00:00:00:00:00"))
+                btnSend();
+            else
+                CheckNetwork.alertDialogWifi(this);
         } else {
             CheckNetwork.alertDialogNet(this);
         }
@@ -87,7 +81,10 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 btnSign.setImageResource(R.drawable.button_press);
                 if (txtUser.getText().toString().length() > 0 && txtPass.getText().toString().length() > 0) {
-                    sendLoginRequest();
+                    if (application.getDeviceMac() == null || application.getDeviceMac().equals("02:00:00:00:00:00")) //greska kada mac adresa nije dodeljena
+                        CheckNetwork.alertDialogWifi(LoginActivity.this);
+                    else
+                        sendLoginRequest();
 
                 } else {
                     btnSign.setImageResource(R.drawable.button);
@@ -98,7 +95,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void sendLoginRequest() {
-        final ProgressDialog progressDialog;
         progressDialog = new ProgressDialog(LoginActivity.this);
         progressDialog.setProgressStyle(R.style.ProgressBar);
         progressDialog.setMessage(getResources().getString(R.string.dialogAuthorizing));
@@ -149,21 +145,21 @@ public class LoginActivity extends AppCompatActivity {
                             finish();
                             break;
                         case "notValidMacAddress":
-                            Toast.makeText(LoginActivity.this, R.string.neovlascen_uredjaj, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, R.string.errNotValidMac, Toast.LENGTH_SHORT).show();
                             break;
                         case "notValidPassword":
-                            Toast.makeText(LoginActivity.this, R.string.neispravno_lozinka, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, R.string.errPassword, Toast.LENGTH_SHORT).show();
                             break;
                         case "notValidUsername":
-                            Toast.makeText(LoginActivity.this, R.string.neispravno_korisnicko_ime, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, R.string.errUserName, Toast.LENGTH_SHORT).show();
                             break;
                         case "notValidError":
-                            Toast.makeText(LoginActivity.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, R.string.errOnSrv, Toast.LENGTH_SHORT).show();
                             break;
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(LoginActivity.this, R.string.nedostupanServer, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, R.string.errOnSrv, Toast.LENGTH_SHORT).show();
                 }
                 progressDialog.dismiss();
             }
@@ -174,7 +170,7 @@ public class LoginActivity extends AppCompatActivity {
                 NetworkResponse response = error.networkResponse;
 
                 if (error instanceof TimeoutError || error instanceof NoConnectionError)
-                    Toast.makeText(LoginActivity.this, "Nemate internet konekciju!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.errConnectionFailure), Toast.LENGTH_SHORT).show();
                 else if (response != null && response.data != null) {
                     switch (response.statusCode) {
                         /*case 400:
@@ -182,7 +178,7 @@ public class LoginActivity extends AppCompatActivity {
                         case 500:
                             break;*/
                         default:
-                            Toast.makeText(LoginActivity.this,"Greska na serveru", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this,getResources().getString(R.string.errUnhandled)+" ("+response.statusCode+")", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
