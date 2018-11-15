@@ -26,23 +26,16 @@ public class MainActivity extends AppCompatActivity {
 
     private Button button;
     private SharedPreferences sharedPreferences;
-    //private Socket RPi;
     private Application application;
+    private Socket RPi;
 
-    private Socket RPi; {
-        try {
-            RPi = IO.socket(application.getRPi());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sharedPreferences = getSharedPreferences("podesavanja", Context.MODE_PRIVATE);
-        /*application = (Application) getApplication();
+        sharedPreferences = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        application = (Application) getApplication();
         {
             IO.Options opts = new IO.Options();
             opts.reconnection = true;
@@ -55,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Socket.IO", String.valueOf(e));
             }
 
-        }*/
+        }
         RPi.connect();
 
         button = (Button) findViewById(R.id.btnUnlock);
@@ -85,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (CheckNetwork.checkNet(this.getApplicationContext(), application)) {
-
-          /*  RPi.connect();
+            RPi.connect();
+            /*
             RPi.on("error", onError);
             RPi.on("unlocked", onNewMessageUnlocked);
             RPi.on("checkRequest", onNewMessageCheck);
@@ -99,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
                 onNavigationItemSelected(navigationView.getMenu().getItem(0));
             }*/
         } else {
-            CheckNetwork.alertDialogNet(this);
+            boolean[] OvoDaSePrepravi = new boolean[2];
+            CheckNetwork.alertDialogNet(this, OvoDaSePrepravi);
         }
     }
 

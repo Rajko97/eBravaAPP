@@ -72,7 +72,7 @@ public class CheckNetwork {
             return false;
         }
     }
-    public static void alertDialogNet(final Context c) {
+    public static void alertDialogNet(final Context c, final boolean[] b) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(c);
         alertDialogBuilder.setTitle(c.getResources().getString(R.string.dialogTitleConnection));
         alertDialogBuilder.setMessage(c.getResources().getString(R.string.dialogMessageNoConnection));
@@ -83,6 +83,7 @@ public class CheckNetwork {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
                         ((Activity) c).startActivity(intent);
+                        b[0] = false;
                     }
         });
         alertDialogBuilder.setNegativeButton(c.getResources().getString(R.string.dialogButtonExit),
@@ -97,7 +98,7 @@ public class CheckNetwork {
         alertDialog.show();
     }
 
-    public static void alertDialogWifi(final Context c) {
+    public static void alertDialogWifi(final Context c, final boolean[] b) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(c);
         alertDialogBuilder.setTitle(c.getResources().getString(R.string.dialogTitleMacAdress));
         alertDialogBuilder.setMessage(c.getResources().getString(R.string.dialogMessageNotAssigned));
@@ -108,6 +109,7 @@ public class CheckNetwork {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
                         ((Activity) c).startActivity(intent);
+                        b[1] = false;
                     }
                 });
         alertDialogBuilder.setNegativeButton(c.getResources().getString(R.string.dialogButtonExit),

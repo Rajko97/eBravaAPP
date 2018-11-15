@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -37,20 +38,24 @@ public class LoginActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private ProgressDialog progressDialog;
 
+    //0 - dialog No Connection
+    //1 - dialog No MAC (WIFI should be on)
+    private boolean[] showingDialog = {false, false};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        sharedPreferences = getSharedPreferences("podesavanja", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         Typeface typeface = Typeface.createFromAsset(getApplicationContext().getAssets(), "exo.ttf");
 
-        btnSign = findViewById(R.id.imgBtnSingUp);
-        txtUser = findViewById(R.id.txtUsername);
-        txtPass = findViewById(R.id.txtPassword);
+        btnSign = findViewById(R.id.btnSingUp);
+        txtUser = findViewById(R.id.inputUsername);
+        txtPass = findViewById(R.id.inputPassword);
 
-        TextView viewPrijava = findViewById(R.id.tvSignUp);
-        viewPrijava.setTypeface(typeface);
+        TextView tvSignUp = findViewById(R.id.tvSignUp);
+        tvSignUp.setTypeface(typeface);
         txtUser.setTypeface(typeface);
         txtPass.setTypeface(typeface);
 
@@ -66,12 +71,21 @@ public class LoginActivity extends AppCompatActivity {
 
     private void CheckNet() {
         if (CheckNetwork.checkNet(this.getApplicationContext(), application)) {
-            if (application.getDeviceMac() != null && !application.getDeviceMac().equals("02:00:00:00:00:00"))
+            if (application.getDeviceMac() != null && !application.getDeviceMac().equals("02:00:00:00:00:00")) {
+                showingDialog[0] = showingDialog[1] = false;
                 btnSend();
-            else
-                CheckNetwork.alertDialogWifi(this);
+            }
+            else {
+                if (!showingDialog[1]) {
+                    CheckNetwork.alertDialogWifi(this, showingDialog);
+                    showingDialog[1] = true;
+                }
+            }
         } else {
-            CheckNetwork.alertDialogNet(this);
+            if(!showingDialog[0]) {
+                CheckNetwork.alertDialogNet(this, showingDialog);
+                showingDialog[0] = true;
+            }
         }
     }
 
@@ -81,9 +95,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 btnSign.setImageResource(R.drawable.button_press);
                 if (txtUser.getText().toString().length() > 0 && txtPass.getText().toString().length() > 0) {
-                    if (application.getDeviceMac() == null || application.getDeviceMac().equals("02:00:00:00:00:00")) //greska kada mac adresa nije dodeljena
+                    /*if (application.getDeviceMac() == null || application.getDeviceMac().equals("02:00:00:00:00:00")) //greska kada mac adresa nije dodeljena
                         CheckNetwork.alertDialogWifi(LoginActivity.this);
-                    else
+                    else*/
                         sendLoginRequest();
 
                 } else {
@@ -101,6 +115,25 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
+        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+
+        final JsonObjectRequest customRequest = new JsonObjectRequest(Request.Method.POST, application.getRPi() + application.getRpiRouteLogin(),getPostRequestBody(), new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                progressDialog.dismiss();
+                onRequestSuccess(response);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+               progressDialog.dismiss();
+               onRequestError(error);
+            }
+        });
+        queue.add(customRequest);
+    }
+
+    private JSONObject getPostRequestBody() {
         JSONObject loginInfo = new JSONObject();
         try {
             loginInfo.put("macAddressDevice", application.getDeviceMac());
@@ -109,80 +142,71 @@ public class LoginActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return loginInfo;
+    }
 
-        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+    public void onRequestSuccess(JSONObject response) {
+        try {
+            String message = response.getString("message");
+            switch (message) {
+                case "success":
+                    Intent intent;
+                    boolean doorPermission = response.getBoolean("doorPermission");
+                    SharedPreferences.Editor usereditor = sharedPreferences.edit();
+                    usereditor.putString("username", response.getString("username"));
+                    usereditor.putString("ime", response.getString("name"));
+                    usereditor.putString("prezime", response.getString("lastName"));
+                    usereditor.putString("zvanje", response.getString("rank"));
+                    usereditor.putString("macAdressaRuterInLab", response.getString("samsungAppsLabRouterMacAddress"));
+                    usereditor.putString("JedinstveniToken", response.getString("uniqueToken"));
 
-        final JsonObjectRequest customRequest = new JsonObjectRequest(Request.Method.POST, application.getRPi() + application.getRpiRouteLogin(),loginInfo, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    String message = response.getString("message");
-                    switch (message) {
-                        case "success":
-                            Intent intent;
-                            boolean doorPermission = response.getBoolean("doorPermission");
-                            SharedPreferences.Editor usereditor = sharedPreferences.edit();
-                            usereditor.putString("username", response.getString("username"));
-                            usereditor.putString("ime", response.getString("name"));
-                            usereditor.putString("prezime", response.getString("lastName"));
-                            usereditor.putString("zvanje", response.getString("rank"));
-                            usereditor.putString("macAdressaRuterInLab", response.getString("samsungAppsLabRouterMacAddress"));
-                            usereditor.putString("JedinstveniToken", response.getString("uniqueToken"));
-
-                            if (doorPermission) {
-                                usereditor.putString("AccessLab", "true").apply();
-                                //intent = new Intent(Login.this, NavActivity.class);
-                                intent = new Intent(LoginActivity.this, MainActivity.class);
-                            } else {
-                                usereditor.putString("AccessLab", "false").apply();
-                                //intent = new Intent(Login.this, WaitActiveActivity.class);
-                                intent = new Intent(LoginActivity.this, MainActivity.class);
-                            }
-                            usereditor.apply();
-                            progressDialog.dismiss();
-                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(intent);
-                            finish();
-                            break;
-                        case "notValidMacAddress":
-                            Toast.makeText(LoginActivity.this, R.string.errNotValidMac, Toast.LENGTH_SHORT).show();
-                            break;
-                        case "notValidPassword":
-                            Toast.makeText(LoginActivity.this, R.string.errPassword, Toast.LENGTH_SHORT).show();
-                            break;
-                        case "notValidUsername":
-                            Toast.makeText(LoginActivity.this, R.string.errUserName, Toast.LENGTH_SHORT).show();
-                            break;
-                        case "notValidError":
-                            Toast.makeText(LoginActivity.this, R.string.errOnSrv, Toast.LENGTH_SHORT).show();
-                            break;
+                    if (doorPermission) {
+                        usereditor.putString("AccessLab", "true").apply();
+                        //intent = new Intent(Login.this, NavActivity.class);
+                        intent = new Intent(LoginActivity.this, MainActivity.class);
+                    } else {
+                        usereditor.putString("AccessLab", "false").apply();
+                        //intent = new Intent(Login.this, WaitActiveActivity.class);
+                        intent = new Intent(LoginActivity.this, MainActivity.class);
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    usereditor.apply();
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                    break;
+                case "notValidMacAddress":
+                    Toast.makeText(LoginActivity.this, R.string.errNotValidMac, Toast.LENGTH_SHORT).show();
+                    break;
+                case "notValidPassword":
+                    Toast.makeText(LoginActivity.this, R.string.errPassword, Toast.LENGTH_SHORT).show();
+                    break;
+                case "notValidUsername":
+                    Toast.makeText(LoginActivity.this, R.string.errUserName, Toast.LENGTH_SHORT).show();
+                    break;
+                case "notValidError":
                     Toast.makeText(LoginActivity.this, R.string.errOnSrv, Toast.LENGTH_SHORT).show();
-                }
-                progressDialog.dismiss();
+                    break;
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                progressDialog.dismiss();
-                NetworkResponse response = error.networkResponse;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(LoginActivity.this, R.string.errOnSrv, Toast.LENGTH_SHORT).show();
+        }
+    }
 
-                if (error instanceof TimeoutError || error instanceof NoConnectionError)
-                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.errConnectionFailure), Toast.LENGTH_SHORT).show();
-                else if (response != null && response.data != null) {
-                    switch (response.statusCode) {
+    public void onRequestError(VolleyError error) {
+        NetworkResponse response = error.networkResponse;
+
+        if (error instanceof TimeoutError || error instanceof NoConnectionError)
+            Toast.makeText(LoginActivity.this, getResources().getString(R.string.errConnectionFailure), Toast.LENGTH_SHORT).show();
+        else if (response != null && response.data != null) {
+            switch (response.statusCode) {
                         /*case 400:
                             break;
                         case 500:
                             break;*/
-                        default:
-                            Toast.makeText(LoginActivity.this,getResources().getString(R.string.errUnhandled)+" ("+response.statusCode+")", Toast.LENGTH_SHORT).show();
-                    }
-                }
+                default:
+                    Toast.makeText(LoginActivity.this,getResources().getString(R.string.errUnhandled)+" ("+response.statusCode+")", Toast.LENGTH_SHORT).show();
             }
-        });
-        queue.add(customRequest);
+        }
     }
 }

@@ -15,7 +15,6 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/imageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="35dp"
@@ -40,9 +39,8 @@
             android:text="@string/login"
             android:textColor="#999999"
             android:textSize="22sp" />
-
         <EditText
-            android:id="@+id/txtUsername"
+            android:id="@+id/inputUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
@@ -57,7 +55,7 @@
             android:textColor="@android:color/black" />
 
         <EditText
-            android:id="@+id/txtPassword"
+            android:id="@+id/inputPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
@@ -69,12 +67,11 @@
             android:inputType="textPassword"
             android:minHeight="35dp"
             android:paddingLeft="10dp"
-            android:password="false"
             android:singleLine="true"
             android:textColor="@android:color/black" />
 
         <ImageButton
-            android:id="@+id/imgBtnSingUp"
+            android:id="@+id/btnSingUp"
             android:layout_width="151dp"
             android:layout_height="52dp"
             android:layout_gravity="right"
