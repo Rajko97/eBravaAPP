@@ -39,6 +39,7 @@
             android:text="@string/login"
             android:textColor="#999999"
             android:textSize="22sp" />
+
         <EditText
             android:id="@+id/inputUsername"
             android:layout_width="match_parent"
@@ -47,7 +48,7 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:background="@drawable/input_style"
-            android:hint="Korisničko ime"
+            android:hint="@string/inputUserName"
             android:inputType="text"
             android:minHeight="35dp"
             android:paddingLeft="10dp"
@@ -63,7 +64,7 @@
             android:layout_marginRight="30dp"
             android:background="@drawable/input_style"
             android:ems="10"
-            android:hint="Šifra"
+            android:hint="@string/inputPassword"
             android:inputType="textPassword"
             android:minHeight="35dp"
             android:paddingLeft="10dp"
@@ -79,7 +80,7 @@
             android:background="@android:color/transparent"
             android:contentDescription="@string/btnLogIn"
             android:scaleType="fitCenter"
-            android:src="@drawable/button" />
+            android:src="@drawable/button_login_selector" />
     </LinearLayout>
 
 </LinearLayout>

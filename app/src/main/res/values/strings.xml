@@ -46,4 +46,9 @@
     <string name="dialogTitleMacAdress">MAC adresa</string>
     <string name="dialogMessageNotAssigned">Vaš uređaj trenutno nema dodeljenu MAC adresu. Morate da upalite WIFI da bi ste nastavili.</string>
     <string name="dialogButtonTurnON">Uključi</string>
+    <string name="inputUserName">Korisničko ime</string>
+    <string name="inputPassword">Lozinka</string>
+    
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>

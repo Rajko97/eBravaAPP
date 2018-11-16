@@ -58,9 +58,6 @@ public class CheckNetwork {
                             mac = "null";
                             application.setDeviceMac(wifiInfo.getMacAddress().toUpperCase());
                         }
-                        //                    }else{
-                        //                        GGlobal.setDeviceMac(wifiInfo.getMacAddress().toUpperCase());
-                        //                    }
                     }
 
                 }
@@ -72,6 +69,16 @@ public class CheckNetwork {
             return false;
         }
     }
+
+    public static boolean checkMacValidation(Application application) {
+        if(application.getDeviceMac() == null)
+            return false;
+        if(application.getDeviceMac().equals("02:00:00:00:00:00"))
+            return false;
+        return true;
+    }
+
+    // dialog 0
     public static void alertDialogNet(final Context c, final boolean[] b) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(c);
         alertDialogBuilder.setTitle(c.getResources().getString(R.string.dialogTitleConnection));
@@ -97,7 +104,7 @@ public class CheckNetwork {
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
-
+    //dialog 1
     public static void alertDialogWifi(final Context c, final boolean[] b) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(c);
         alertDialogBuilder.setTitle(c.getResources().getString(R.string.dialogTitleMacAdress));

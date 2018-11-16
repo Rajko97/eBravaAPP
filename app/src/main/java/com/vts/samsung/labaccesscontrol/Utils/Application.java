@@ -76,7 +76,7 @@ public class Application extends android.app.Application {
     }
 
     public String getRpiRouteLogin() {
-        return rpiRouteLogin;
+        return RPi+rpiRouteLogin;
     }
 
     public void setRpiRouteLogin(String rpiRouteLogin) {

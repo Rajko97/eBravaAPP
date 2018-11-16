@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_item_access" android:title="Pristup Laboratoriji" android:icon="@drawable/ic_key"/>
+    <item android:id="@+id/menu_item_online" android:title="Trenutno u Laboratoriji" android:icon="@drawable/ic_users_group"/>
+    <item android:id="@+id/menu_item_time" android:title="Vašе Vreme u Laboratoriji" android:icon="@drawable/ic_calendar"/>
+    <item android:id="@+id/menu_item_messages" android:title="Poruke" android:icon="@drawable/ic_chat"/>
+    <item android:id="@+id/menu_item_logout" android:title="Odjavi se" android:icon="@drawable/ic_logout"/>
+</menu>

@@ -1,10 +1,14 @@
 package com.vts.samsung.labaccesscontrol.Activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -24,7 +28,9 @@ import java.net.URISyntaxException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button button;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mToggle;
+    private Button button, button2;
     private SharedPreferences sharedPreferences;
     private Application application;
     private Socket RPi;
@@ -34,7 +40,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sharedPreferences = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.activity_main);
+        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.close);
+        mDrawerLayout.addDrawerListener(mToggle);
+        mToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        sharedPreferences = getSharedPreferences("аppSettings", Context.MODE_PRIVATE);
         application = (Application) getApplication();
         {
             IO.Options opts = new IO.Options();
@@ -58,11 +70,25 @@ public class MainActivity extends AppCompatActivity {
                 RPi.emit("unlock", getMessageForRpi("unlock").toString());
             }
         });
+
+        button2 = (Button) findViewById(R.id.btnLogOut);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences.Editor usereditor = sharedPreferences.edit();
+                usereditor.clear().apply();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+
+            }
+        });
     }
 
     public JSONObject getMessageForRpi(String a) {
         JSONObject jsonData = new JSONObject();
-        String uniqueToken = sharedPreferences.getString("JedinstveniToken", null);
+        String uniqueToken = sharedPreferences.getString("uniqueToken", null);
         try {
             jsonData.put("uniqueToken", uniqueToken);
             jsonData.put("macAddressDevice", application.getDeviceMac());
@@ -101,5 +127,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         RPi.disconnect();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(mToggle.onOptionsItemSelected(item))
+            return true;
+        return super.onOptionsItemSelected(item);
     }
 }

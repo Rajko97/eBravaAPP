@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        sharedPreferences = getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("аppSettings", Context.MODE_PRIVATE);
         Typeface typeface = Typeface.createFromAsset(getApplicationContext().getAssets(), "exo.ttf");
 
         btnSign = findViewById(R.id.btnSingUp);
@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void CheckNet() {
         if (CheckNetwork.checkNet(this.getApplicationContext(), application)) {
-            if (application.getDeviceMac() != null && !application.getDeviceMac().equals("02:00:00:00:00:00")) {
+            if (CheckNetwork.checkMacValidation(application)) {
                 showingDialog[0] = showingDialog[1] = false;
                 btnSend();
             }
@@ -93,15 +93,9 @@ public class LoginActivity extends AppCompatActivity {
         btnSign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btnSign.setImageResource(R.drawable.button_press);
                 if (txtUser.getText().toString().length() > 0 && txtPass.getText().toString().length() > 0) {
-                    /*if (application.getDeviceMac() == null || application.getDeviceMac().equals("02:00:00:00:00:00")) //greska kada mac adresa nije dodeljena
-                        CheckNetwork.alertDialogWifi(LoginActivity.this);
-                    else*/
-                        sendLoginRequest();
-
+                    sendLoginRequest();
                 } else {
-                    btnSign.setImageResource(R.drawable.button);
                     Toast.makeText(LoginActivity.this, (R.string.obavezna_polja), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -117,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
 
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
 
-        final JsonObjectRequest customRequest = new JsonObjectRequest(Request.Method.POST, application.getRPi() + application.getRpiRouteLogin(),getPostRequestBody(), new Response.Listener<JSONObject>() {
+        final JsonObjectRequest customRequest = new JsonObjectRequest(Request.Method.POST, application.getRpiRouteLogin(), getPostRequestBody(), new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 progressDialog.dismiss();
@@ -150,29 +144,17 @@ public class LoginActivity extends AppCompatActivity {
             String message = response.getString("message");
             switch (message) {
                 case "success":
-                    Intent intent;
                     boolean doorPermission = response.getBoolean("doorPermission");
                     SharedPreferences.Editor usereditor = sharedPreferences.edit();
                     usereditor.putString("username", response.getString("username"));
-                    usereditor.putString("ime", response.getString("name"));
-                    usereditor.putString("prezime", response.getString("lastName"));
-                    usereditor.putString("zvanje", response.getString("rank"));
-                    usereditor.putString("macAdressaRuterInLab", response.getString("samsungAppsLabRouterMacAddress"));
-                    usereditor.putString("JedinstveniToken", response.getString("uniqueToken"));
-
-                    if (doorPermission) {
-                        usereditor.putString("AccessLab", "true").apply();
-                        //intent = new Intent(Login.this, NavActivity.class);
-                        intent = new Intent(LoginActivity.this, MainActivity.class);
-                    } else {
-                        usereditor.putString("AccessLab", "false").apply();
-                        //intent = new Intent(Login.this, WaitActiveActivity.class);
-                        intent = new Intent(LoginActivity.this, MainActivity.class);
-                    }
+                    usereditor.putString("firstName", response.getString("name"));
+                    usereditor.putString("lastName", response.getString("lastName"));
+                    usereditor.putString("rank", response.getString("rank"));
+                    usereditor.putString("routerMAC", response.getString("samsungAppsLabRouterMacAddress"));
+                    usereditor.putString("uniqueToken", response.getString("uniqueToken"));
+                    usereditor.putString("doorPermission", Boolean.toString(doorPermission));
                     usereditor.apply();
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    finish();
+                    startNextActivity(doorPermission);
                     break;
                 case "notValidMacAddress":
                     Toast.makeText(LoginActivity.this, R.string.errNotValidMac, Toast.LENGTH_SHORT).show();
@@ -208,5 +190,19 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this,getResources().getString(R.string.errUnhandled)+" ("+response.statusCode+")", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void startNextActivity(boolean doorPermission) {
+        Intent intent;
+        if (doorPermission) {
+            intent = new Intent(LoginActivity.this, MainActivity.class);
+        } else {
+            //todo Ovo da se izmeni kad se odradi WaitActiveActivity
+            //intent = new Intent(Login.this, WaitActiveActivity.class);
+            intent = new Intent(LoginActivity.this, MainActivity.class);
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 }
