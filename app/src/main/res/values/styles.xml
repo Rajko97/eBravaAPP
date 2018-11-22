@@ -16,4 +16,14 @@
         <!--<item name="android:indeterminateDrawable">@drawable/circular_progress_dialog</item>-->
     </style>
 
+    <style name="ThemeOverlay.AppCompat.navTheme">
+
+        <!-- Color of text and icon when SELECTED -->
+        <item name="colorPrimary">#fff</item>
+
+        <!-- Background color when SELECTED -->
+        <item name="colorControlHighlight">#212121</item>
+
+    </style>
+
 </resources>

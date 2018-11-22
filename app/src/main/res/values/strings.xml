@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Lab Access Control</string>
-    <string name="title_activity_login">Sign in</string>
 
     <!--Dialogs -->
     <string name="dialogTitleConnection">Internet konekcija</string>
@@ -8,6 +7,13 @@
     <string name="dialogButtonConnect">Konektuj se</string>
     <string name="dialogButtonExit">Izlaz</string>
     <string name="dialogAuthorizing">Autorizacija korisnika, Molimo sačekajte . . .</string>
+    <string name="dialogTitleMacAdress">MAC adresa</string>
+    <string name="dialogMessageNotAssigned">Vaš uređaj trenutno nema dodeljenu MAC adresu. Morate da upalite WIFI da bi ste nastavili.</string>
+    <string name="dialogButtonTurnON">Uključi</string>
+    <string name="dialogTitleLogOut">Upozorenje</string>
+    <string name="dialogMessageLogOut">Da li ste sigurni da želite da se odjavite sa ovog uređaja?</string>
+    <string name="dialogButtonYes">Da</string>
+    <string name="dialogButtonNo">Ne</string>
 
     <!-- Toast Messages -->
     <string name="errNotValidMac">Koristite neovlašćeni uredjaj, ovaj uređaj nije odobren.</string>
@@ -41,14 +47,14 @@
     <string name="ogranicenirezim">Aplikacija trenutno radi u ograničenom režimu jer niste u blizini labratorije.</string>
 
 
-    <string name="login">Prijava</string>
+    <!-- LoginActivity -->
+    <string name="tvLogin">Prijava</string>
     <string name="btnLogIn">Prijavi se</string>
-    <string name="dialogTitleMacAdress">MAC adresa</string>
-    <string name="dialogMessageNotAssigned">Vaš uređaj trenutno nema dodeljenu MAC adresu. Morate da upalite WIFI da bi ste nastavili.</string>
-    <string name="dialogButtonTurnON">Uključi</string>
     <string name="inputUserName">Korisničko ime</string>
     <string name="inputPassword">Lozinka</string>
-    
+
+    <!-- Action Bar toogle -->
     <string name="open">Open</string>
     <string name="close">Close</string>
+
 </resources>
