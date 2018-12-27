@@ -1,14 +1,16 @@
 package com.vts.samsung.labaccesscontrol.Utils;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 
 public class Application extends android.app.Application {
-
+    private static Application mInstance;
    /* private ArrayList<User> userArrayList;
     private ArrayList<Message> messageArrayList;*/
 
     private String deviceMac = null;
-    private String routerMac = null;
+    private String routerMac = null; //"18:A6:F7:B0:BC:E5"
     private String IPDevice;
 
     private String RPi = "http://160.99.39.135:443/";
@@ -20,9 +22,12 @@ public class Application extends android.app.Application {
     private String rpiRouteChat = "chat";
     private String rpiRouteLogOut = "logout";
 
+
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mInstance = this;
         //userArrayList = new ArrayList<>();
        // messageArrayList = new ArrayList<>();
     }
@@ -84,7 +89,7 @@ public class Application extends android.app.Application {
     }
 
     public String getRpiRouteAvailableUserInLab() {
-        return rpiRouteAvailableUserInLab;
+        return RPi+rpiRouteAvailableUserInLab;
     }
 
     public void setRpiRouteAvailableUserInLab(String rpiRouteAvailableUserInLab) {
@@ -116,10 +121,26 @@ public class Application extends android.app.Application {
     }
 
     public String getRpiRouteLogOut() {
-        return rpiRouteLogOut;
+        return RPi+rpiRouteLogOut;
     }
 
     public void setRpiRouteLogOut(String rpiRouteLogOut) {
         this.rpiRouteLogOut = rpiRouteLogOut;
+    }
+
+    public static synchronized Application getInstance() {
+        return mInstance;
+    }
+
+    public void setConnectivityListener(ConnectivityReceiver.ConnectivityReceiverListener listener) {
+        ConnectivityReceiver.connectivityReceiverListener = listener;
+    }
+
+    public static boolean checkMacValidation(Application app) {
+        if(app.getDeviceMac() == null)
+            return false;
+        if(app.getDeviceMac().equals("02:00:00:00:00:00"))
+            return false;
+        return true;
     }
 }

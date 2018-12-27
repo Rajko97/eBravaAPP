@@ -1,15 +1,22 @@
 package com.vts.samsung.labaccesscontrol.Activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,6 +25,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -26,10 +34,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tomerrosenfeld.customanalogclockview.CustomAnalogClock;
 import com.vts.samsung.labaccesscontrol.Adapter.CustomTypefaceSpan;
 import com.vts.samsung.labaccesscontrol.Fragment.AccessControl;
 import com.vts.samsung.labaccesscontrol.Fragment.ActiveMembers;
 import com.vts.samsung.labaccesscontrol.R;
+import com.vts.samsung.labaccesscontrol.Services.GPS_Service;
+import com.vts.samsung.labaccesscontrol.Services.checkInLab_Service;
+import com.vts.samsung.labaccesscontrol.Utils.Application;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -38,10 +50,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActionBarDrawerToggle mToggle;
     private SharedPreferences sharedPreferences;
 
+    private BroadcastReceiver broadcastReceiver;
+    private Application application;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        application = (Application) getApplication();
+
 
         sharedPreferences = getSharedPreferences("аppSettings", Context.MODE_PRIVATE);
 
@@ -54,27 +71,75 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             if(getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-                /*TextView tv = new TextView(getApplicationContext());
-                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
-                tv.setLayoutParams(lp);
-                tv.setText("Welcome!");
-                        tv.setTextSize(20);
-                tv.setTextColor(Color.parseColor("#FFFFFF"));
-                //Typeface tf = Typeface.createFromAsset(getAssets(), "Asap-Medium.otf");
-                tv.setTypeface(typeface);
-                getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-                getSupportActionBar().setCustomView(tv);*/
             }
-
-
-
             mNavigation.setNavigationItemSelectedListener(this);
             mNavigation.setCheckedItem(R.id.menu_item_access);
         }
         setNavigationDrawerDesign();
         setNavigationDrawerFont();
         changeFragment(new AccessControl());
+
+        //TODO Pokretanje servisa
+        if (!isMyServiceRunning(checkInLab_Service.class)) {
+            Intent i = new Intent(getApplicationContext(), checkInLab_Service.class);
+            startService(i);
+        }
+        //TODO ----------------------------
+    }
+
+    //TODO provera servisa
+    private boolean isMyServiceRunning(Class<checkInLab_Service> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    //TODO ----------------------------
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(broadcastReceiver == null) {
+            broadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    //textView.setText("trenutna lok: "+intent.getExtras().get("coordinates"));
+                }
+            };
+        }
+        registerReceiver(broadcastReceiver, new IntentFilter("location_update"));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+        }
+    }
+
+    private boolean getGPSpermission() {
+        if(Build.VERSION.SDK_INT >= 23
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
+            return true;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 100) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                getGPSpermission();
+            }
+        }
     }
 
     @Override
@@ -112,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
            return false;
     }
 
-    private void changeFragment(Fragment fragment) {
+    public void changeFragment(Fragment fragment) {
         FragmentTransaction ft;
         ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, fragment);

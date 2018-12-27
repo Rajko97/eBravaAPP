@@ -1,31 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".Fragment.AccessControl"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment.AccessControl">
+    android:keepScreenOn="true"
+    android:background="@drawable/bg_image">
 
-    <Button
-        android:id="@+id/btnUnlock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Otkljucaj"
-        android:layout_gravity="center_horizontal|center_vertical" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:weightSum="1">
 
-    <Button
-        android:id="@+id/btnCheckIn"
-        android:layout_marginLeft="60dp"
-        android:text="Prijavi Se"
-        android:layout_marginTop="450dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.55"
+            android:background="@drawable/clock_bg"
+            android:gravity="center_horizontal|center_vertical">
+            <com.tomerrosenfeld.customanalogclockview.CustomAnalogClock
+                android:id="@+id/analog_clock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:default_watchface="true" />
+        </LinearLayout>
 
-    <Button
-        android:id="@+id/btnCheckOut"
-        android:layout_marginTop="450dp"
-        android:layout_marginLeft="230dp"
-        android:text="Odjavi Se"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/btnUnlock"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/button_bg_selector"
+            android:layout_gravity="center_horizontal|center_vertical" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:weightSum="1"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btnCheckIn"
+                android:background="@drawable/button_sign_in_bg_selector"
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:layout_height="match_parent" />
+
+            <ImageButton
+                android:id="@+id/btnCheckOut"
+                android:layout_marginStart="5dp"
+                android:background="@drawable/button_sign_out_bg_selector"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"/>
+        </LinearLayout>
+    </LinearLayout>
 </FrameLayout>

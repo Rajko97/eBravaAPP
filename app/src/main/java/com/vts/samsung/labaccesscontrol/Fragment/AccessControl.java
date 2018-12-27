@@ -9,13 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.tomerrosenfeld.customanalogclockview.CustomAnalogClock;
 import com.vts.samsung.labaccesscontrol.Activity.MainActivity;
 import com.vts.samsung.labaccesscontrol.R;
 import com.vts.samsung.labaccesscontrol.Utils.Application;
 import com.vts.samsung.labaccesscontrol.Utils.CheckNetwork;
+import com.vts.samsung.labaccesscontrol.Utils.ConnectivityReceiver;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,14 +37,14 @@ public class AccessControl extends Fragment {
     private MainActivity mainActivity;
     private Application application;
     private Socket RPi;
-    private Button button;
+    private ImageButton btnUnlock;
     private SharedPreferences sharedPreferences;
-    private Button btnCheckIn, btnCheckOut;
+    private ImageButton btnCheckIn, btnCheckOut;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_access_control, container, false);
-        // Inflate the layout for this fragment
+
         mainActivity = (MainActivity) getActivity();
 
         sharedPreferences =mainActivity.getSharedPreferences("аppSettings", Context.MODE_PRIVATE);
@@ -62,8 +65,8 @@ public class AccessControl extends Fragment {
         }
         RPi.connect();
 
-        button = (Button) v.findViewById(R.id.btnUnlock);
-        button.setOnClickListener(new View.OnClickListener() {
+        btnUnlock = (ImageButton) v.findViewById(R.id.btnUnlock);
+        btnUnlock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 RPi.emit("unlock", getMessageForRpi("unlock").toString());
@@ -71,10 +74,14 @@ public class AccessControl extends Fragment {
         });
 
 
-        btnCheckIn = (Button) v.findViewById(R.id.btnCheckIn);
-        btnCheckOut = (Button) v.findViewById(R.id.btnCheckOut);
+        btnCheckIn = (ImageButton) v.findViewById(R.id.btnCheckIn);
+        btnCheckOut = (ImageButton) v.findViewById(R.id.btnCheckOut);
         onCheckInOutListener();
 
+        CustomAnalogClock customAnalogClock = (CustomAnalogClock) v.findViewById(R.id.analog_clock);
+        customAnalogClock.setAutoUpdate(true);
+        customAnalogClock.setScale(1.1f);
+        customAnalogClock.init(mainActivity, R.drawable.clock, R.drawable.default_hour_hand, R.drawable.default_minute_hand, 255, false, true);
         return v;
     }
 
@@ -94,11 +101,12 @@ public class AccessControl extends Fragment {
                     checkInStatus = "outsideLab";
                     btnCheckIn.setEnabled(true);
                     btnCheckOut.setEnabled(false);
+                    RPi.emit("check", getMessageForRpi("checkOUT").toString());
                 } else {
                     checkInStatus = "inLab";
                     btnCheckIn.setEnabled(false);
                     btnCheckOut.setEnabled(true);
-
+                    RPi.emit("check", getMessageForRpi("checkIN").toString());
                 }
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("checkInStatus", checkInStatus).apply();
@@ -106,7 +114,6 @@ public class AccessControl extends Fragment {
         };
         btnCheckIn.setOnClickListener(onClickListener);
         btnCheckOut.setOnClickListener(onClickListener);
-
     }
 
     public JSONObject getMessageForRpi(String a) {
@@ -126,7 +133,7 @@ public class AccessControl extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (CheckNetwork.checkNet(mainActivity.getApplicationContext(), application)) {
+        if (ConnectivityReceiver.isConnected()) {
             RPi.connect();
             /*
             RPi.on("error", onError);
@@ -141,8 +148,7 @@ public class AccessControl extends Fragment {
                 onNavigationItemSelected(navigationView.getMenu().getItem(0));
             }*/
         } else {
-            boolean[] OvoDaSePrepravi = new boolean[2];
-            CheckNetwork.alertDialogNet(mainActivity, OvoDaSePrepravi);
+            ConnectivityReceiver.alertDialogNet(mainActivity);
         }
     }
 

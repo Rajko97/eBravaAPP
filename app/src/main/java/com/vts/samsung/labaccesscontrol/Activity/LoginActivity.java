@@ -1,12 +1,16 @@
 package com.vts.samsung.labaccesscontrol.Activity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -22,24 +26,28 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
 import com.vts.samsung.labaccesscontrol.R;
 import com.vts.samsung.labaccesscontrol.Utils.Application;
 import com.vts.samsung.labaccesscontrol.Utils.CheckNetwork;
+import com.vts.samsung.labaccesscontrol.Utils.ConnectivityReceiver;
+import com.vts.samsung.labaccesscontrol.Utils.ConnectivityReceiver.ConnectionType;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class LoginActivity extends AppCompatActivity {
+
+
+public class LoginActivity extends AppCompatActivity implements ConnectivityReceiver.ConnectivityReceiverListener {
 
     private ImageButton btnSign;
     private EditText txtUser, txtPass;
     private Application application;
     private SharedPreferences sharedPreferences;
     private ProgressDialog progressDialog;
+    private AlertDialog adInternetConnection, adMacProblem;
 
-    //0 - dialog No Connection
-    //1 - dialog No MAC (WIFI should be on)
-    private boolean[] showingDialog = {false, false};
+    private BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,43 +60,66 @@ public class LoginActivity extends AppCompatActivity {
         btnSign = findViewById(R.id.btnSingUp);
         txtUser = findViewById(R.id.inputUsername);
         txtPass = findViewById(R.id.inputPassword);
-
         TextView tvSignUp = findViewById(R.id.tvSignUp);
+
         tvSignUp.setTypeface(typeface);
         txtUser.setTypeface(typeface);
         txtPass.setTypeface(typeface);
 
         application = (Application) getApplication();
-        CheckNet();
-    }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        CheckNet();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(connectivityReceiver, filter);
     }
 
     private void CheckNet() {
-        if (CheckNetwork.checkNet(this.getApplicationContext(), application)) {
-            if (CheckNetwork.checkMacValidation(application)) {
-                showingDialog[0] = showingDialog[1] = false;
-                btnSend();
+        if(ConnectivityReceiver.isConnected()){
+            if (Application.checkMacValidation(application)) {
+                if(adInternetConnection != null) {
+                    adInternetConnection.dismiss();
+                }
+                if(adMacProblem != null) {
+                    adMacProblem.dismiss();
+                }
+                btnSend(true);
             }
             else {
-                if (!showingDialog[1]) {
-                    CheckNetwork.alertDialogWifi(this, showingDialog);
-                    showingDialog[1] = true;
+                if(adMacProblem == null) {
+                    adMacProblem = ConnectivityReceiver.alertDialogWifi(this);
+                } else {
+                    adMacProblem.show();
                 }
+                btnSend(false);
             }
         } else {
-            if(!showingDialog[0]) {
-                CheckNetwork.alertDialogNet(this, showingDialog);
-                showingDialog[0] = true;
-            }
+                if(adInternetConnection == null)
+                    adInternetConnection = ConnectivityReceiver.alertDialogNet(this);
+                else {
+                    adInternetConnection.show();
+                }
+                btnSend(false);
         }
     }
 
-    private void btnSend() {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(connectivityReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Application.getInstance().setConnectivityListener(this);
+        CheckNet();
+    }
+
+    private void btnSend(boolean enabled) {
+        if (!enabled) {
+            btnSign.setOnClickListener(null);
+            return;
+        }
         btnSign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -203,5 +234,10 @@ public class LoginActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void onNetworkConnectionChanged(ConnectionType connectionType, boolean onSamsungAppsLab) {
+        CheckNet();
     }
 }
