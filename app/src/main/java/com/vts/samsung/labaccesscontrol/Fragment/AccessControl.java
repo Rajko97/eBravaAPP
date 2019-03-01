@@ -2,6 +2,7 @@ package com.vts.samsung.labaccesscontrol.Fragment;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -78,11 +80,15 @@ public class AccessControl extends Fragment {
         btnCheckOut = (ImageButton) v.findViewById(R.id.btnCheckOut);
         onCheckInOutListener();
 
-        CustomAnalogClock customAnalogClock = (CustomAnalogClock) v.findViewById(R.id.analog_clock);
-        customAnalogClock.setAutoUpdate(true);
-        customAnalogClock.setScale(1.1f);
-        customAnalogClock.init(mainActivity, R.drawable.clock, R.drawable.default_hour_hand, R.drawable.default_minute_hand, 255, false, true);
+        initClock(v);
+
         return v;
+    }
+
+    private void initClock(View v) {
+        Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "exo.ttf");
+        ((TextView) v.findViewById(R.id.tvAccessControlClock)).setTypeface(font);
+        ((TextView) v.findViewById(R.id.tvAccessControlDate)).setTypeface(font);
     }
 
     private void onCheckInOutListener() {
