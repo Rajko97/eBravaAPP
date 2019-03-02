@@ -14,14 +14,16 @@
     <string name="dialogMessageLogOut">Da li ste sigurni da želite da se odjavite sa ovog uređaja?</string>
     <string name="dialogButtonYes">Da</string>
     <string name="dialogButtonNo">Ne</string>
+    <string name="dialogMessageFetchTimeInLab">Učitavam podatke, Molimo sačekajte . . .</string>
 
     <!-- Toast Messages -->
-    <string name="errNotValidMac">Koristite neovlašćeni uredjaj, ovaj uređaj nije odobren.</string>
+    <string name="errNotValidMac">Koristite neovlašćeni uređaj, ovaj uređaj nije odobren.</string>
     <string name="errUserName">Korisnik sa navedenim korisničkim imenom ne postoji.</string>
     <string name="errPassword">Neispravna lozinka.</string>
     <string name="errConnectionFailure">Nije uspostavljena komunikacija sa serverom</string>
     <string name="errOnSrv">Došlo je do greške, molimo Vas pokušajte kasnije.</string>
     <string name="errUnhandled">Nepoznata greska</string>
+    <string name="errWrongParameters">Server je dostavio pogrešne parametre</string>
 
     <!-- Other -->
     <string name="prijava" translatable="false">Prijava:</string>
@@ -57,7 +59,10 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Fragment Time in Lab -->
+    <string name="chooseTimeHeader">Izaberite vreme:</string>
+    <string name="timeWordStart">Od:</string>
+    <string name="timeWordEnd">Do:</string>
+    <string name="chartDescription">Grafik</string>
 
 </resources>

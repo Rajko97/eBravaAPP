@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ import com.tomerrosenfeld.customanalogclockview.CustomAnalogClock;
 import com.vts.samsung.labaccesscontrol.Adapter.CustomTypefaceSpan;
 import com.vts.samsung.labaccesscontrol.Fragment.AccessControl;
 import com.vts.samsung.labaccesscontrol.Fragment.ActiveMembers;
+import com.vts.samsung.labaccesscontrol.Fragment.TimeInLab;
 import com.vts.samsung.labaccesscontrol.R;
 import com.vts.samsung.labaccesscontrol.Services.GPS_Service;
 import com.vts.samsung.labaccesscontrol.Services.checkInLab_Service;
@@ -49,9 +51,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView mNavigation;
     private ActionBarDrawerToggle mToggle;
     private SharedPreferences sharedPreferences;
-
     private BroadcastReceiver broadcastReceiver;
     private Application application;
+    private Fragment accessControl, activeMembers, timeInLab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         application = (Application) getApplication();
 
+        accessControl = new AccessControl();
+        activeMembers = new ActiveMembers();
+        timeInLab = new TimeInLab();
 
         sharedPreferences = getSharedPreferences("аppSettings", Context.MODE_PRIVATE);
 
@@ -154,17 +159,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
            int id = item.getItemId();
            //if(id != R.id.menu_item_logout)
-               if(id == R.id.menu_item_access || id == R.id.menu_item_online)//ToDO obrisati ovu liniju kad se odrade ostali fragmenti
+               if(id == R.id.menu_item_access || id == R.id.menu_item_online || id == R.id.menu_item_time)//ToDO obrisati ovu liniju kad se odrade ostali fragmenti
                mNavigation.setCheckedItem(id);
            switch (id) {
                case R.id.menu_item_access:
-                   changeFragment(new AccessControl());
+                   changeFragment(accessControl);
                    break;
                case R.id.menu_item_online:
-                   changeFragment(new ActiveMembers());
+                   changeFragment(activeMembers);
                    break;
                case R.id.menu_item_time:
-                   Toast.makeText(this, "Fragment Provedeno Vreme nije kreiran", Toast.LENGTH_SHORT).show();
+                   changeFragment(timeInLab);
                    break;
                case R.id.menu_item_messages:
                    Toast.makeText(this, "Fragment Poruke nije kreiran", Toast.LENGTH_SHORT).show();
@@ -193,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 SharedPreferences.Editor usereditor = sharedPreferences.edit();
+                //todo Poslati LogOut signal RPi-u pre izlaska
                 usereditor.clear().apply();
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -238,8 +244,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvName.setTypeface(typeface);
         tvName.setTypeface(typeface);
 
-        Button btnLogout = mNavigation.findViewById(R.id.btnLogOut);
-        btnLogout.setTypeface(typeface);
+        ImageButton btnLogout = mNavigation.findViewById(R.id.btnLogOut);
+        //btnLogout.setTypeface(typeface);
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

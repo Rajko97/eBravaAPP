@@ -8,6 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppThemeActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorAccent" >@color/colorAccent</item>
+    </style>
+
     <style name="ProgressBar" parent="@android:style/Widget.ProgressBar">
         <item name="android:layout_centerHorizontal">true</item>
         <item name="android:layout_centerVertical">true</item>
@@ -22,8 +26,7 @@
         <item name="colorPrimary">#fff</item>
 
         <!-- Background color when SELECTED -->
-        <item name="colorControlHighlight">#212121</item>
+        <item name="colorControlHighlight">#051aff</item>
 
     </style>
-
 </resources>

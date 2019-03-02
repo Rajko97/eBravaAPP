@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activity.MainActivity">
-
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
@@ -19,8 +18,8 @@
         android:layout_height="match_parent"
         android:background="#111"
         app:headerLayout="@layout/header"
-        app:itemTextColor="#fff"
-        app:itemIconTint="#fff"
+        app:itemTextColor="@drawable/drawer_item_selector"
+        app:itemIconTint="@drawable/drawer_item_selector"
         app:menu="@menu/drawermenu"
         app:itemBackground="@drawable/drawer_selector"
         app:theme="@style/ThemeOverlay.AppCompat.navTheme"
@@ -32,19 +31,27 @@
             android:gravity="center_horizontal"
             android:clickable="true"
             android:orientation="vertical">
-            <Button
+            <!--ImageButton
                 android:id="@+id/btnLogOut"
-                android:drawableStart="@drawable/ic_logout"
                 android:layout_width="160dp"
                 android:layout_height="48dp"
-                android:paddingLeft="10dp"
-                android:text="Odjavi se"
                 android:gravity="center"
                 android:textAllCaps="false"
                 android:textColor="#fff"
                 android:layout_marginBottom="5dp"
-                android:background="@drawable/button_logout_selector" />
+                android:src="@drawable/button_login_selector" /-->
+            <ImageButton
+                android:id="@+id/btnLogOut"
+                android:layout_width="160dp"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:layout_marginBottom="5dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/button_login_selector" />
         </LinearLayout>
-
+        <!--android:drawableStart="@drawable/ic_logout"
+               android:paddingLeft="10dp"
+                android:text="Odjavi se"-->
     </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>

@@ -116,7 +116,8 @@ public class checkInLab_Service extends Service implements ConnectivityReceiver.
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "Greska na serveru pri slanju logout zahteva");
                 NetworkResponse response = error.networkResponse;
-                Log.d(TAG,"greka je "+response.statusCode);
+                if(response != null)
+                   Log.d(TAG,"greska je "+response.statusCode);
             }
         });
         queue.add(customRequest);

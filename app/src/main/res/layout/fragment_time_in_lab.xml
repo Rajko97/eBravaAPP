@@ -3,12 +3,148 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment.TimeInLab">
+    tools:context=".Fragment.TimeInLab"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:background="@drawable/bg_image"
+        android:paddingTop="10dp">
+
+        <TextView
+            android:id="@+id/tvChooseTimeHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/chooseTimeHeader"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/imgBtnCalendarStart"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:adjustViewBounds="true"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_callendar"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvChooseTimeHeader" />
+
+        <ImageButton
+            android:id="@+id/imgBtnCalendarEnd"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="16dp"
+            android:adjustViewBounds="true"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_callendar"
+            app:layout_constraintStart_toStartOf="@+id/imgBtnCalendarStart"
+            app:layout_constraintTop_toBottomOf="@+id/imgBtnCalendarStart" />
+
+        <TextView
+            android:id="@+id/tvTextBegin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:paddingLeft="10dp"
+            android:text="@string/timeWordStart"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/imgBtnCalendarStart"
+            app:layout_constraintStart_toEndOf="@+id/imgBtnCalendarStart"
+            app:layout_constraintTop_toTopOf="@+id/imgBtnCalendarStart"
+            tools:ignore="RtlSymmetry" />
+
+        <TextView
+            android:id="@+id/tvCalendarStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:paddingLeft="40dp"
+            android:hint="dd.mm.yyyy"
+            android:textColorHint="@color/colorThemeBlue"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/colorThemeBlue"
+            app:layout_constraintBottom_toBottomOf="@id/tvTextBegin"
+            app:layout_constraintStart_toEndOf="@id/tvTextBegin"
+            app:layout_constraintTop_toTopOf="@+id/tvTextBegin" />
+
+
+        <TextView
+            android:id="@+id/tvTextEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:paddingLeft="10dp"
+            android:text="@string/timeWordEnd"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/imgBtnCalendarEnd"
+            app:layout_constraintStart_toEndOf="@+id/imgBtnCalendarEnd"
+            app:layout_constraintTop_toTopOf="@+id/imgBtnCalendarEnd"
+            tools:ignore="RtlSymmetry" />
+
+        <TextView
+            android:id="@+id/tvCalendarEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:paddingLeft="40dp"
+            android:hint="dd.mm.yyyy"
+            android:textColorHint="@color/colorThemeBlue"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/colorThemeBlue"
+            app:layout_constraintBottom_toBottomOf="@+id/tvTextEnd"
+            app:layout_constraintStart_toEndOf="@+id/tvTextEnd"
+            app:layout_constraintTop_toTopOf="@+id/tvTextEnd" />
+
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/barChart"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imgBtnCalendarEnd"
+            app:layout_constraintVertical_bias="0.0" />
+
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fAbtnUpdateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:clickable="true"
+            app:backgroundTint="@color/colorThemeBlue"
+            app:elevation="0dp"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:rippleColor="#FFFF"
+            app:srcCompat="@android:drawable/ic_menu_search" />
+
+    </android.support.constraint.ConstraintLayout>
 
 </FrameLayout>

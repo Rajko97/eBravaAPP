@@ -6,9 +6,54 @@
     tools:context=".Fragment.ActiveMembers"
     android:background="@drawable/bg_image">
 
+    <TextView
+        android:id="@+id/tvErrorEmptyLab"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginTop="-100dp"
+        android:text="Trenutno nema prijavljenih članova u laboratoriji!\n Proverite kasnije."
+        android:textColor="#29ABE1"
+        android:textSize="15sp"/>
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/shimmer_view_container"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_gravity="center">
+
+            <include
+                layout="@layout/member_place_holder_layout"/>
+            <include
+                layout="@layout/member_place_holder_layout"/>
+            <include
+                layout="@layout/member_place_holder_layout"/>
+            <include
+                layout="@layout/member_place_holder_layout"/>
+            <include
+                layout="@layout/member_place_holder_layout"/>
+            <include
+                layout="@layout/member_place_holder_layout"/>
+
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/recyclerActiveMembers">
+        android:id="@+id/recyclerActiveMembers"
+        android:visibility="gone">
     </android.support.v7.widget.RecyclerView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 </FrameLayout>

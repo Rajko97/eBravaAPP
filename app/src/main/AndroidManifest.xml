@@ -25,7 +25,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activity.MainActivity"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            android:theme="@style/AppThemeActionBar"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>

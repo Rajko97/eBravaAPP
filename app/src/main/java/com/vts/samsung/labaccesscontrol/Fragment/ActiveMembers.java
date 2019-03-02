@@ -2,16 +2,19 @@ package com.vts.samsung.labaccesscontrol.Fragment;
 
 
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
@@ -21,9 +24,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.vts.samsung.labaccesscontrol.Activity.LoginActivity;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.vts.samsung.labaccesscontrol.Utils.Application;
 import com.vts.samsung.labaccesscontrol.Activity.MainActivity;
 import com.vts.samsung.labaccesscontrol.Adapter.RecyclerViewAdapter;
@@ -43,12 +45,12 @@ public class ActiveMembers extends Fragment {
     public ActiveMembers() {
         // Required empty public constructor
     }
-    private ArrayList<String> mNames = new ArrayList<>();
-    private ArrayList<String> mRanks = new ArrayList<>();
-
-    private ProgressDialog progressDialog;
     private Application app;
     private SharedPreferences sharedPreferences;
+    private RecyclerView recyclerView;
+    private ShimmerFrameLayout shimmerFrameLayout;
+    private TextView tvError;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,29 +60,47 @@ public class ActiveMembers extends Fragment {
         app = (Application) mainActivity.getApplication();
         sharedPreferences = getActivity().getSharedPreferences("аppSettings", Context.MODE_PRIVATE);
 
-        sendAvilableUsersRequest();
+        Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(), "exo.ttf");
+        recyclerView = v.findViewById(R.id.recyclerActiveMembers);
+        shimmerFrameLayout = (ShimmerFrameLayout) v.findViewById(R.id.shimmer_view_container);
+        swipeRefreshLayout =(SwipeRefreshLayout) v.findViewById(R.id.swipe);
+        tvError = (TextView) v.findViewById(R.id.tvErrorEmptyLab);
+        tvError.setTypeface(typeface);
+
+        swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#29ABE1"));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                sendAvailableUsersRequest();
+                shimmerFrameLayout.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+                tvError.setVisibility(View.INVISIBLE);
+            }
+        });
+        sendAvailableUsersRequest();
         return v;
     }
 
-    private void sendAvilableUsersRequest() {
-        progressDialog = new ProgressDialog(getContext());
-        progressDialog.setProgressStyle(R.style.ProgressBar);
-        progressDialog.setMessage("Ucitavam korisnike...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
+    private void sendAvailableUsersRequest() {
+        shimmerFrameLayout.startShimmer();
         RequestQueue queue = Volley.newRequestQueue(getContext());
 
-        CustomJsonObjectArrayRequest request = new CustomJsonObjectArrayRequest(Request.Method.POST, app.getRpiRouteAvailableUserInLab(), getRequestBody(), new Response.Listener<JSONArray>() {
+        CustomJsonObjectArrayRequest request = new CustomJsonObjectArrayRequest(Request.Method.GET, "http://rajk0.000webhostapp.com/eBrava/members.php", getRequestBody(), new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 loadUsers(response);
-                progressDialog.dismiss();
+                shimmerFrameLayout.stopShimmer();
+                swipeRefreshLayout.setRefreshing(false);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                progressDialog.dismiss();
+                shimmerFrameLayout.stopShimmer();
+                swipeRefreshLayout.setRefreshing(false);
+                shimmerFrameLayout.setVisibility(View.GONE);
+                //tvError.setText("Greska na serveru");
+                //tvError.setVisibility(View.VISIBLE);
+
                 NetworkResponse response = error.networkResponse;
 
                 if (error instanceof TimeoutError || error instanceof NoConnectionError)
@@ -112,6 +132,10 @@ public class ActiveMembers extends Fragment {
     }
 
     private void loadUsers(JSONArray jSonList) {
+        ArrayList<String> mNames = new ArrayList<>();
+        ArrayList<String> mRanks = new ArrayList<>();
+        ArrayList<String> mImages = new ArrayList<>();
+
         JSONObject jsonObject;
 
         for (int i = 0; i < jSonList.length(); i++) {
@@ -120,20 +144,29 @@ public class ActiveMembers extends Fragment {
                 String fName = jsonObject.getString("ime");
                 String lName = jsonObject.getString("prezime");
                 String rank = jsonObject.getString("zvanje");
-
+                try {
+                    String img = jsonObject.getString("slika");
+                    mImages.add(img);
+                } catch (JSONException e) {
+                    mImages.add("");
+                }
                 mNames.add(fName+" "+lName);
                 mRanks.add(rank);
             } catch (JSONException e) {
                 e.printStackTrace();
+                Toast.makeText(app, getResources().getText(R.string.errWrongParameters), Toast.LENGTH_SHORT).show();
             }
         }
-        initRecycleView();
+        initRecycleView(mImages, mNames, mRanks);
     }
 
-    private void initRecycleView() {
-        RecyclerView recyclerView = v.findViewById(R.id.recyclerActiveMembers);
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(mNames, mRanks, getContext());
+    private void initRecycleView(ArrayList<String> mImages, ArrayList<String> mNames, ArrayList<String> mRanks) {
+        recyclerView.setVisibility(View.VISIBLE);
+        shimmerFrameLayout.setVisibility(View.GONE);
+        tvError.setVisibility(mNames.size()!=0?View.INVISIBLE:View.VISIBLE);
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(),mImages, mNames, mRanks);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setHasFixedSize(true);//todo ispitati ovu komandu
     }
 }

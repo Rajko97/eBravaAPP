@@ -201,7 +201,7 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(LoginActivity.this, R.string.errOnSrv, Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, R.string.errWrongParameters, Toast.LENGTH_SHORT).show();
         }
     }
 
