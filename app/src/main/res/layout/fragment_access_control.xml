@@ -5,14 +5,12 @@
     tools:context=".Fragment.AccessControl"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true"
-    android:background="@drawable/bg_image">
+    android:keepScreenOn="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="32dp"
         android:weightSum="1">
 
         <LinearLayout
@@ -20,45 +18,69 @@
             android:layout_height="0dp"
             android:layout_weight="0.55"
             android:background="@drawable/clock_bg"
+            android:drawable="@drawable/clock"
             android:gravity="center_horizontal|center_vertical">
-            <com.tomerrosenfeld.customanalogclockview.CustomAnalogClock
-                android:id="@+id/analog_clock"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:default_watchface="true" />
+                android:orientation="vertical"
+                android:background="@drawable/clock"
+                android:gravity="center_horizontal|center_vertical">
+            <TextView
+                android:id="@+id/tvAccessControlClock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10:46"
+                android:textColor="@android:color/white"
+                android:textSize="@android:dimen/app_icon_size"
+                android:layout_marginTop="-10dp" />
+
+            <TextView
+                android:id="@+id/tvAccessControlDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:requiresFadingEdge="horizontal"
+                android:text="PETAK, 24.10.2014"
+                android:textColor="@android:color/white" />
+            </LinearLayout>
         </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnUnlock"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.2"
             android:background="@android:color/transparent"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:src="@drawable/button_bg_selector"
-            android:layout_gravity="center_horizontal|center_vertical" />
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:paddingTop="10dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.2"
             android:weightSum="1"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingTop="10dp">
 
             <ImageButton
                 android:id="@+id/btnCheckIn"
                 android:background="@drawable/button_sign_in_bg_selector"
                 android:layout_width="0dp"
                 android:layout_weight="0.5"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"/>
 
             <ImageButton
                 android:id="@+id/btnCheckOut"
-                android:layout_marginStart="5dp"
+                android:layout_marginStart="10dp"
                 android:background="@drawable/button_sign_out_bg_selector"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.5"/>
+                android:layout_weight="0.5"
+                android:scaleType="centerCrop"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

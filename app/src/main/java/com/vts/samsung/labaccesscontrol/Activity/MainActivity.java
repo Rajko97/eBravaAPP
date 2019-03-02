@@ -9,61 +9,80 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tomerrosenfeld.customanalogclockview.CustomAnalogClock;
 import com.vts.samsung.labaccesscontrol.Adapter.CustomTypefaceSpan;
+import com.vts.samsung.labaccesscontrol.Adapter.SectionsPageAdapter;
 import com.vts.samsung.labaccesscontrol.Fragment.AccessControl;
 import com.vts.samsung.labaccesscontrol.Fragment.ActiveMembers;
 import com.vts.samsung.labaccesscontrol.Fragment.TimeInLab;
 import com.vts.samsung.labaccesscontrol.R;
-import com.vts.samsung.labaccesscontrol.Services.GPS_Service;
 import com.vts.samsung.labaccesscontrol.Services.checkInLab_Service;
 import com.vts.samsung.labaccesscontrol.Utils.Application;
+import com.vts.samsung.labaccesscontrol.Utils.ConnectivityReceiver;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private TabLayout tabLayout;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigation;
     private ActionBarDrawerToggle mToggle;
     private SharedPreferences sharedPreferences;
     private BroadcastReceiver broadcastReceiver;
     private Application application;
-    private Fragment accessControl, activeMembers, timeInLab;
+
+    private Fragment accessControl, activeMembers, timeInLab; //todo delete
+
+    private SectionsPageAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.Theme_AppCompat_Light_NoActionBar_FullScreen);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         application = (Application) getApplication();
 
+        //todo delete
         accessControl = new AccessControl();
         activeMembers = new ActiveMembers();
         timeInLab = new TimeInLab();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.app_action_bar);
+        setSupportActionBar(toolbar);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         sharedPreferences = getSharedPreferences("аppSettings", Context.MODE_PRIVATE);
 
@@ -75,22 +94,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mToggle.syncState();
 
             if(getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
             mNavigation.setNavigationItemSelectedListener(this);
             mNavigation.setCheckedItem(R.id.menu_item_access);
         }
         setNavigationDrawerDesign();
         setNavigationDrawerFont();
-        changeFragment(new AccessControl());
+        changeTabsFont();
+        //changeFragment(new AccessControl());
+
+        //
+        mSectionsPagerAdapter = new SectionsPageAdapter(getSupportFragmentManager());
+        mViewPager = (ViewPager) findViewById(R.id.container);
+        setupViewAdapter(mViewPager);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+        //
 
         //TODO Pokretanje servisa
-        if (!isMyServiceRunning(checkInLab_Service.class)) {
+        /*if (!isMyServiceRunning(checkInLab_Service.class)) {
             Intent i = new Intent(getApplicationContext(), checkInLab_Service.class);
             startService(i);
-        }
+        }*/
         //TODO ----------------------------
     }
+
 
     //TODO provera servisa
     private boolean isMyServiceRunning(Class<checkInLab_Service> serviceClass) {
@@ -185,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void changeFragment(Fragment fragment) {
         FragmentTransaction ft;
         ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.content_frame, fragment);
+        //ft.replace(R.id.content_frame, fragment);
         ft.commit();
     }
 
@@ -255,6 +284,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    private void changeTabsFont() {
+        Typeface font = Typeface.createFromAsset(getAssets(), "exo.ttf");
+        ViewGroup vg = (ViewGroup) tabLayout.getChildAt(0);
+        int tabsCount = vg.getChildCount();
+        for (int j = 0; j < tabsCount; j++) {
+            ViewGroup vgTab = (ViewGroup) vg.getChildAt(j);
+            int tabChildsCount = vgTab.getChildCount();
+            for (int i = 0; i < tabChildsCount; i++) {
+                View tabViewChild = vgTab.getChildAt(i);
+                if (tabViewChild instanceof TextView) {
+                    ((TextView) tabViewChild).setTypeface(font);
+                }
+            }
+        }
+    }
+
     private void setNavigationDrawerFont() {
         Menu menu = mNavigation.getMenu();
         for (int i = 0; i < menu.size(); i++) {
@@ -276,5 +321,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SpannableString mNewTitle = new SpannableString(menuItem.getTitle());
         mNewTitle.setSpan(new CustomTypefaceSpan("", font), 0, mNewTitle.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         menuItem.setTitle(mNewTitle);
+    }
+
+    private void setupViewAdapter(ViewPager viewPager) {
+        SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
+        adapter.addFragment(new AccessControl(), "POČETNI EKRAN");
+        adapter.addFragment(new ActiveMembers(), "PRISUTNI U LABORATORIJI");
+        adapter.addFragment(new TimeInLab(), "VAŠE VREME U LABORATORIJI");
+        viewPager.setAdapter(adapter);
     }
 }

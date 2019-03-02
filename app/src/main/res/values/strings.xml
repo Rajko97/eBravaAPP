@@ -48,6 +48,8 @@
 
     <string name="ogranicenirezim">Aplikacija trenutno radi u ograničenom režimu jer niste u blizini labratorije.</string>
 
+    <!-- StartActivity (Splash) -->
+    <string name="loading">Loading...</string>
 
     <!-- LoginActivity -->
     <string name="tvLogin">Prijava</string>
@@ -64,5 +66,4 @@
     <string name="timeWordStart">Od:</string>
     <string name="timeWordEnd">Do:</string>
     <string name="chartDescription">Grafik</string>
-
 </resources>

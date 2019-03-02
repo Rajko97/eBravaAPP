@@ -25,15 +25,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activity.MainActivity"
-            android:theme="@style/AppThemeActionBar"
-            android:screenOrientation="portrait">
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
         <activity android:name=".Activity.LoginActivity"/>
 
-        
         <receiver android:name=".Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

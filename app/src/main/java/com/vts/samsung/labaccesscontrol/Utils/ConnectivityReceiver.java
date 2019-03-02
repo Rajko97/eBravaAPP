@@ -89,6 +89,9 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
        String currentMac = Application.getInstance().getRouterMac().toUpperCase();
         String labMac = sharedPreferences.getString("routerMAC", "00:00:00:00:00");
+        String testMac = "c8:3a:35:13:63:70".toUpperCase();
+        if(currentMac.equals(testMac))
+            return true;
         if(currentMac.equals(labMac))
             return true;
         else if(Application.getInstance().getRouterMac().equals("02:00:00:00:00:00"))

@@ -144,13 +144,18 @@ public class ActiveMembers extends Fragment {
                 String fName = jsonObject.getString("ime");
                 String lName = jsonObject.getString("prezime");
                 String rank = jsonObject.getString("zvanje");
+                if (rank.equals("Koordinator"))
+                    rank = "Koordinator VTŠ Apps Tima";
+                else if (rank.equals("Clan")) {
+                    rank = "Član VTŠ Apps tima";
+                }
                 try {
                     String img = jsonObject.getString("slika");
                     mImages.add(img);
                 } catch (JSONException e) {
                     mImages.add("");
                 }
-                mNames.add(fName+" "+lName);
+                mNames.add((fName+" "+lName).toUpperCase());
                 mRanks.add(rank);
             } catch (JSONException e) {
                 e.printStackTrace();

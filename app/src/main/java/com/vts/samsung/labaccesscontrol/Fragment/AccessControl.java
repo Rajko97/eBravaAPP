@@ -1,23 +1,24 @@
 package com.vts.samsung.labaccesscontrol.Fragment;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
-import com.tomerrosenfeld.customanalogclockview.CustomAnalogClock;
 import com.vts.samsung.labaccesscontrol.Activity.MainActivity;
 import com.vts.samsung.labaccesscontrol.R;
 import com.vts.samsung.labaccesscontrol.Utils.Application;
-import com.vts.samsung.labaccesscontrol.Utils.CheckNetwork;
 import com.vts.samsung.labaccesscontrol.Utils.ConnectivityReceiver;
 
 import org.json.JSONException;
@@ -26,7 +27,7 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 
 
-public class AccessControl extends Fragment {
+public class AccessControl extends Fragment implements  ConnectivityReceiver.ConnectivityReceiverListener {
 
 
     public AccessControl() {
@@ -40,6 +41,8 @@ public class AccessControl extends Fragment {
     private ImageButton btnUnlock;
     private SharedPreferences sharedPreferences;
     private ImageButton btnCheckIn, btnCheckOut;
+
+    private BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -78,11 +81,19 @@ public class AccessControl extends Fragment {
         btnCheckOut = (ImageButton) v.findViewById(R.id.btnCheckOut);
         onCheckInOutListener();
 
-        CustomAnalogClock customAnalogClock = (CustomAnalogClock) v.findViewById(R.id.analog_clock);
-        customAnalogClock.setAutoUpdate(true);
-        customAnalogClock.setScale(1.1f);
-        customAnalogClock.init(mainActivity, R.drawable.clock, R.drawable.default_hour_hand, R.drawable.default_minute_hand, 255, false, true);
+        initClock(v);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        getActivity().registerReceiver(connectivityReceiver, filter);
+
         return v;
+    }
+
+    private void initClock(View v) {
+        Typeface font = Typeface.createFromAsset(getActivity().getAssets(), "exo.ttf");
+        ((TextView) v.findViewById(R.id.tvAccessControlClock)).setTypeface(font);
+        ((TextView) v.findViewById(R.id.tvAccessControlDate)).setTypeface(font);
     }
 
     private void onCheckInOutListener() {
@@ -150,11 +161,27 @@ public class AccessControl extends Fragment {
         } else {
             ConnectivityReceiver.alertDialogNet(mainActivity);
         }
+        Application.getInstance().setConnectivityListener(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         RPi.disconnect();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getActivity().unregisterReceiver(connectivityReceiver);
+    }
+
+    @Override
+    public void onNetworkConnectionChanged(ConnectivityReceiver.ConnectionType connectionType, boolean onSamsungAppsLab) {
+        if(onSamsungAppsLab) {
+            btnUnlock.setEnabled(true);
+        } else {
+            btnUnlock.setEnabled(false);
+        }
     }
 }
