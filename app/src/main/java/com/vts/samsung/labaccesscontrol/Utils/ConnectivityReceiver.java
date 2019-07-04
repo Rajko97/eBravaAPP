@@ -35,6 +35,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
     public static ConnectivityReceiverListener connectivityReceiverListener;
     public static WiFiSignalStrengthListener wiFiSignalStrengthListener;
 
+
     public ConnectivityReceiver() {
         super();
         sharedPreferences = Application.getInstance().getSharedPreferences("аppSettings", Context.MODE_PRIVATE);
@@ -42,6 +43,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent arg1) {
+
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
@@ -97,10 +99,10 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         else if(Application.getInstance().getRouterMac().equals("02:00:00:00:00:00"))
         {   //Android 8.1 - API Level 27 - Android Oreo (Go edition)
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                Toast.makeText(Application.getInstance().getApplicationContext(), "Da bi ste imali pristup lab, morate upaliti navigaciju", Toast.LENGTH_SHORT);
+                Toast.makeText(Application.getInstance().getApplicationContext(), "Da bi ste imali pristup lab, morate upaliti navigaciju", Toast.LENGTH_SHORT).show();
             }
             else {
-                Toast.makeText(Application.getInstance().getApplicationContext(), "Greska pri pribavljanju MAC adrese rutera", Toast.LENGTH_SHORT);
+                Toast.makeText(Application.getInstance().getApplicationContext(), "Greska pri pribavljanju MAC adrese rutera", Toast.LENGTH_SHORT).show();
                 return false;
             }
         }

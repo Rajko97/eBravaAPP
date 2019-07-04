@@ -17,49 +17,65 @@
         android:textColor="#29ABE1"
         android:textSize="15sp"/>
 
-    <com.facebook.shimmer.ShimmerFrameLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/shimmer_view_container"
-        >
-        <LinearLayout
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/btnRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#77555555"
+            android:padding="8dp"
+            android:layout_margin="8dp"
+            android:src="@drawable/refresh"/>
+
+        <com.facebook.shimmer.ShimmerFrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_gravity="center">
+            android:id="@+id/shimmer_view_container"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_gravity="center">
 
-            <include
-                layout="@layout/member_place_holder_layout"/>
-            <include
-                layout="@layout/member_place_holder_layout"/>
-            <include
-                layout="@layout/member_place_holder_layout"/>
-            <include
-                layout="@layout/member_place_holder_layout"/>
-            <include
-                layout="@layout/member_place_holder_layout"/>
-            <include
-                layout="@layout/member_place_holder_layout"/>
+                <include
+                    layout="@layout/member_place_holder_layout"/>
+                <include
+                    layout="@layout/member_place_holder_layout"/>
+                <include
+                    layout="@layout/member_place_holder_layout"/>
+                <include
+                    layout="@layout/member_place_holder_layout"/>
+                <include
+                    layout="@layout/member_place_holder_layout"/>
+                <include
+                    layout="@layout/member_place_holder_layout"/>
 
-        </LinearLayout>
-    </com.facebook.shimmer.ShimmerFrameLayout>
+            </LinearLayout>
+        </com.facebook.shimmer.ShimmerFrameLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/recyclerActiveMembers"
-        android:visibility="gone"
-        android:scrollbars="vertical"
-        android:scrollbarThumbVertical="@color/colorTabFontGrey"
-        android:scrollbarStyle="insideInset"
-        android:fadeScrollbars="true"
-        android:scrollbarSize="3dp"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
-        >
-    </android.support.v7.widget.RecyclerView>
-    </android.support.v4.widget.SwipeRefreshLayout>
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/recyclerActiveMembers"
+                android:visibility="gone"
+                android:scrollbars="vertical"
+                android:scrollbarThumbVertical="@color/colorTabFontGrey"
+                android:scrollbarStyle="insideInset"
+                android:fadeScrollbars="true"
+                android:scrollbarSize="3dp"
+                android:scrollbarAlwaysDrawVerticalTrack="true">
+            </android.support.v7.widget.RecyclerView>
+        </android.support.v4.widget.SwipeRefreshLayout>
+    </LinearLayout>
 </FrameLayout>

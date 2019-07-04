@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +53,7 @@ public class ActiveMembers extends Fragment {
     private ShimmerFrameLayout shimmerFrameLayout;
     private TextView tvError;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private ImageButton btnRefresh;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,6 +69,17 @@ public class ActiveMembers extends Fragment {
         swipeRefreshLayout =(SwipeRefreshLayout) v.findViewById(R.id.swipe);
         tvError = (TextView) v.findViewById(R.id.tvErrorEmptyLab);
         tvError.setTypeface(typeface);
+        btnRefresh = (ImageButton) v.findViewById(R.id.btnRefresh);
+        btnRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendAvailableUsersRequest();
+                shimmerFrameLayout.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+                tvError.setVisibility(View.INVISIBLE);
+                btnRefresh.setEnabled(false);
+            }
+        });
 
         swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#29ABE1"));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -75,6 +89,7 @@ public class ActiveMembers extends Fragment {
                 shimmerFrameLayout.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);
                 tvError.setVisibility(View.INVISIBLE);
+                btnRefresh.setEnabled(false);
             }
         });
         sendAvailableUsersRequest();
@@ -173,5 +188,6 @@ public class ActiveMembers extends Fragment {
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);//todo ispitati ovu komandu
+        btnRefresh.setEnabled(true);
     }
 }

@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -162,6 +163,11 @@ public class AccessControl extends Fragment implements  ConnectivityReceiver.Con
             ConnectivityReceiver.alertDialogNet(mainActivity);
         }
         Application.getInstance().setConnectivityListener(this);
+        checkNetwork();
+    }
+
+    private void checkNetwork() {
+            btnUnlock.setEnabled(ConnectivityReceiver.connectedOnAppsLab());
     }
 
     @Override
@@ -179,9 +185,16 @@ public class AccessControl extends Fragment implements  ConnectivityReceiver.Con
     @Override
     public void onNetworkConnectionChanged(ConnectivityReceiver.ConnectionType connectionType, boolean onSamsungAppsLab) {
         if(onSamsungAppsLab) {
-            btnUnlock.setEnabled(true);
+            if(!btnUnlock.isEnabled()) {
+                Toast.makeText(getActivity(), "Dobrodošli u lab", Toast.LENGTH_SHORT).show();
+                btnUnlock.setEnabled(true);
+            }
+
         } else {
-            btnUnlock.setEnabled(false);
+            if(btnUnlock.isEnabled()) {
+                Toast.makeText(getActivity(), "Napustili ste lab", Toast.LENGTH_SHORT).show();
+                btnUnlock.setEnabled(false);
+            }
         }
     }
 }
